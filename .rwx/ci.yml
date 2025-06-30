@@ -30,7 +30,10 @@ tasks:
 
   - key: test
     use: install
-    run: npm test
+    run: npm test -- --json --testLocationInResults --outputFile jest-results.json
+    outputs:
+      test-results:
+        - path: jest-results.json
 
   - key: build
     use: install
