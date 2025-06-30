@@ -1,0 +1,37 @@
+base:
+  os: ubuntu 24.04
+  tag: 1.1
+
+tasks:
+  - key: code
+    call: git/clone 1.6.5
+    with:
+      repository: https://github.com/rwx-cloud/mcp-testing.git
+      ref: ${{ init.commit-sha }}
+      github-access-token: ${{ github['rwx-cloud'].token }}
+
+  - key: tool-versions
+    use: code
+    call: rwx/tool-versions 1.0.4
+    filter: [.tool-versions]
+
+  - key: node
+    use: code
+    call: nodejs/install 1.1.7
+    with:
+      node-version: ${{ tasks.tool-versions.values.nodejs }}
+    filter:
+      - package.json
+      - package-lock.json
+
+  - key: install
+    use: node
+    run: npm ci
+
+  - key: test
+    use: install
+    run: npm test
+
+  - key: build
+    use: install
+    run: npm run build
