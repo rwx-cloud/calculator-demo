@@ -1,0 +1,99 @@
+base:
+  os: ubuntu 24.04
+  tag: 1.2
+
+tasks:
+  - key: code
+    call: git/clone 1.6.9
+    with:
+      repository: https://github.com/rwx-cloud/calculator-demo.git
+      ref: main
+      github-access-token: ${{ github-apps.rwx-cloud-bot.token }}
+      preserve-git-dir: true
+
+  - key: tool-versions
+    use: code
+    call: rwx/tool-versions 1.0.4
+    filter: [.tool-versions]
+
+  - key: node
+    call: nodejs/install 1.1.7
+    with:
+      node-version: ${{ tasks.tool-versions.values.nodejs }}
+
+  - key: node-modules
+    use: [node, code]
+    run: npm ci
+    filter:
+      - package.json
+      - package-lock.json
+
+  - key: claude-code
+    use: node
+    run: |
+      npm install -g @anthropic-ai/claude-code
+
+      mkdir -p ~/.claude
+      cat <<'EOF' > ~/.claude/settings.json
+      {
+        "permissions": {
+          "defaultMode": "bypassPermissions"
+        }
+      }
+      EOF
+
+      cat <<'EOF' > ~/.claude.json
+      {
+        "bypassPermissionsModeAccepted": true,
+        "hasCompletedOnboarding": true
+      }
+      EOF
+
+      claude config set -g autoUpdates false
+      claude config set -g preferredNotifChannel notifications_disabled
+      claude config set -g theme dark
+      claude config set -g verbose true
+
+  - key: gh
+    call: github/install-cli 1.0.7
+
+  - key: claude
+    use: [gh, claude-code, code]
+    cache: false
+    timeout: 30m
+    run: |
+      echo "Running Claude Code..."
+
+      prompt=$(cat $PROMPT_FILE)
+      echo "$prompt"
+
+      echo "Executing prompt..."
+      claude --dangerously-skip-permissions \
+        --append-system-prompt "Provide final result output as a pull request description." \
+        -p "$prompt" | tee "$RWX_VALUES/claude-result"
+
+      echo "Generating title..."
+      claude --continue --dangerously-skip-permissions \
+        -p "Generate a single line summary of the changes that you just made suitable for a pull request title" | tee "$RWX_VALUES/pr-title"
+
+      echo -e "## Run\n" | tee -a "$RWX_VALUES/pr-description"
+      echo -e "$RWX_RUN_URL\n\n" | tee -a "$RWX_VALUES/pr-description"
+
+      echo -e "## Prompt\n" | tee -a "$RWX_VALUES/pr-description"
+      echo "$prompt" | tee -a "$RWX_VALUES/pr-description"
+
+      echo -e "\n## Result\n" | tee -a "$RWX_VALUES/pr-description"
+      cat "$RWX_VALUES/claude-result" | tee -a "$RWX_VALUES/pr-description"
+    env:
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: 1
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ vaults.doug_test.secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      PROMPT_FILE: ${{ run.dir }}/prompt.md
+
+  - key: create-pull-request
+    call: github/create-pull-request 1.0.1
+    use: claude
+    with:
+      github-token: ${{ github-apps.rwx-cloud-bot.token }}
+      branch-prefix: claude/${{ run.id }}
+      pull-request-title: ${{ tasks.claude.values.pr-title }}
+      pull-request-body: ${{ tasks.claude.values.pr-description }}

@@ -6,7 +6,7 @@ tasks:
   - key: code
     call: git/clone 1.6.5
     with:
-      repository: https://github.com/rwx-cloud/mcp-testing.git
+      repository: https://github.com/rwx-cloud/calculator-demo.git
       ref: ${{ init.commit-sha }}
       github-access-token: ${{ github['rwx-cloud'].token }}
 
