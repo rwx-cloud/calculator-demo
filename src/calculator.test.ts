@@ -1,4 +1,4 @@
-import { add } from './calculator';
+import { add, subtract } from './calculator';
 
 describe('Calculator', () => {
   describe('add', () => {
@@ -25,6 +25,41 @@ describe('Calculator', () => {
 
     it('should handle floating point precision', () => {
       expect(add(0.1, 0.2)).toBeCloseTo(0.3);
+    });
+  });
+
+  describe('subtract', () => {
+    it('should subtract two positive numbers', () => {
+      expect(subtract(5, 3)).toBe(2);
+    });
+
+    it('should subtract two negative numbers', () => {
+      expect(subtract(-5, -3)).toBe(-2);
+    });
+
+    it('should subtract a negative from a positive number', () => {
+      expect(subtract(5, -3)).toBe(8);
+    });
+
+    it('should subtract a positive from a negative number', () => {
+      expect(subtract(-5, 3)).toBe(-8);
+    });
+
+    it('should subtract zero from a number', () => {
+      expect(subtract(5, 0)).toBe(5);
+      expect(subtract(0, 5)).toBe(-5);
+    });
+
+    it('should subtract decimal numbers', () => {
+      expect(subtract(4.5, 2.5)).toBe(2);
+    });
+
+    it('should handle floating point precision', () => {
+      expect(subtract(0.3, 0.1)).toBeCloseTo(0.2);
+    });
+
+    it('should subtract same numbers to get zero', () => {
+      expect(subtract(7, 7)).toBe(0);
     });
   });
 });
