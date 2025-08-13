@@ -94,6 +94,6 @@ tasks:
     use: claude
     with:
       github-token: ${{ github-apps.rwx-cloud-bot.token }}
-      branch-prefix: claude/run
+      branch-prefix: claude/${{ run.id }}
       pull-request-title: ${{ tasks.claude.values.pr-title }}
       pull-request-body: ${{ tasks.claude.values.pr-description }}
