@@ -8,7 +8,6 @@ tasks:
     with:
       repository: https://github.com/rwx-cloud/calculator-demo.git
       ref: main
-      github-access-token: ${{ github-apps.rwx-cloud-bot.token }}
       preserve-git-dir: true
 
   - key: tool-versions

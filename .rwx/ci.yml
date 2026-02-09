@@ -13,7 +13,6 @@ tasks:
     with:
       repository: https://github.com/rwx-cloud/calculator-demo.git
       ref: ${{ init.commit-sha }}
-      github-access-token: ${{ github['rwx-cloud'].token }}
 
   - key: tool-versions
     use: code
