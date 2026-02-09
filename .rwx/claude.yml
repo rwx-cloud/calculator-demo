@@ -4,7 +4,7 @@ base:
 
 tasks:
   - key: code
-    call: git/clone 1.6.9
+    call: git/clone 1.9.5
     with:
       repository: https://github.com/rwx-cloud/calculator-demo.git
       ref: main
@@ -12,11 +12,11 @@ tasks:
 
   - key: tool-versions
     use: code
-    call: rwx/tool-versions 1.0.4
+    call: rwx/tool-versions 1.0.6
     filter: [.tool-versions]
 
   - key: node
-    call: nodejs/install 1.1.7
+    call: nodejs/install 1.1.11
     with:
       node-version: ${{ tasks.tool-versions.values.nodejs }}
 
@@ -54,7 +54,7 @@ tasks:
       claude config set -g verbose true
 
   - key: gh
-    call: github/install-cli 1.0.7
+    call: github/install-cli 1.0.8
 
   - key: claude
     use: [gh, claude-code, code]
@@ -89,7 +89,7 @@ tasks:
       PROMPT_FILE: ${{ run.dir }}/prompt.md
 
   - key: create-pull-request
-    call: github/create-pull-request 1.0.1
+    call: github/create-pull-request 1.0.3
     use: claude
     with:
       github-token: ${{ github-apps.rwx-cloud-bot.token }}
