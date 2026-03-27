@@ -1,4 +1,4 @@
-import { add } from './calculator';
+import { add, subtract } from './calculator';
 
 describe('Calculator', () => {
   describe('add', () => {
@@ -25,6 +25,12 @@ describe('Calculator', () => {
 
     it('should handle floating point precision', () => {
       expect(add(0.1, 0.2)).toBeCloseTo(0.3);
+    });
+  });
+
+  describe('subtract', () => {
+    it('should subtract two positive numbers', () => {
+      expect(subtract(3, 2)).toBe(1);
     });
   });
 });
