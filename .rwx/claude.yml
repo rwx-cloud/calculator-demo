@@ -1,5 +1,5 @@
 base:
-  os: ubuntu 24.04
+  os: ubuntu 26.04
   tag: 1.2
 
 tasks:

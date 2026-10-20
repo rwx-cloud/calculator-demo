@@ -5,7 +5,7 @@ on:
         commit-sha: ${{ event.git.sha }}
 
 base:
-  os: ubuntu 24.04
+  os: ubuntu 26.04
   tag: 1.1
 
 tasks:
